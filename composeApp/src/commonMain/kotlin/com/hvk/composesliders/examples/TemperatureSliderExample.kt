@@ -1,9 +1,12 @@
 package com.hvk.composesliders.examples
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsDraggedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -51,26 +54,49 @@ private fun getTemperatureSliderColors(
     sliderValue: Float, isEnabled: Boolean
 ): SliderColors {
     return SliderDefaults.colors(
-        thumbColor = when {
-            sliderValue < TemperatureSliderConstants.COLD_THRESHOLD -> Color.Blue
-            sliderValue < TemperatureSliderConstants.MODERATE_THRESHOLD -> Color.Green
-            else -> Color.Red
-        }, activeTrackColor = when {
-            !isEnabled -> Color.Gray
-            sliderValue < TemperatureSliderConstants.COLD_THRESHOLD -> Color.Blue.copy(alpha = 0.7f)
-            sliderValue < TemperatureSliderConstants.MODERATE_THRESHOLD -> Color.Green.copy(alpha = 0.7f)
-            else -> Color.Red.copy(alpha = 0.7f)
-        }, inactiveTrackColor = Color.Gray.copy(alpha = 0.3f)
+        thumbColor = getThumbColor(sliderValue),
+        activeTrackColor = getActiveTrackColor(sliderValue, isEnabled),
+        inactiveTrackColor = Color.Gray.copy(alpha = 0.3f)
     )
 }
 
+@Composable
+private fun getThumbColor(sliderValue: Float): Color = when {
+    sliderValue < TemperatureSliderConstants.COLD_THRESHOLD -> Color.Blue
+    sliderValue < TemperatureSliderConstants.MODERATE_THRESHOLD -> Color.Yellow
+    else -> Color.Red
+}
+
+@Composable
+private fun getActiveTrackColor(
+    sliderValue: Float,
+    isEnabled: Boolean
+): Color = if (!isEnabled) Color.Gray else getThumbColor(sliderValue).copy(alpha = 0.7f)
+
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun TemperatureSliderThumb(sliderState: SliderState) {
+private fun TemperatureSliderThumb(
+    sliderState: SliderState,
+    interactionSource: InteractionSource
+) {
+    val isDragging = interactionSource.collectIsDraggedAsState().value
+    val size by animateDpAsState(
+        targetValue = if (isDragging) 50.dp else 40.dp,
+        label = "Thumb size animation"
+    )
+
     Box(
-        modifier = Modifier.size(40.dp).background(
-            color = Color.White, shape = CircleShape
-        ).border(3.dp, Color.Black, CircleShape), contentAlignment = Alignment.Center
+        modifier = Modifier.size(size)
+            .background(
+                color = Color.White,
+                shape = CircleShape
+            ).border(
+                width = 3.dp,
+                color = Color.Black,
+                shape = CircleShape
+            ),
+        contentAlignment = Alignment.Center
     ) {
         Text(
             text = "${sliderState.value.roundToInt()}",
@@ -117,7 +143,7 @@ fun TemperatureSliderExample() {
                     enabled = isEnabled,
                     colors = getTemperatureSliderColors(sliderState.value, isEnabled),
                     interactionSource = interactionSource,
-                    thumb = { TemperatureSliderThumb(sliderState) },
+                    thumb = { TemperatureSliderThumb(sliderState, interactionSource) },
                     track = { TemperatureSliderTrack() },
                 )
             }
@@ -130,8 +156,12 @@ fun TemperatureSliderExample() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun SliderPositionIndicator(sliderState: SliderState) {
+    val currentStep =
+        sliderState.value.roundToInt() - TemperatureSliderConstants.MIN_TEMP.toInt() + 1
+    val totalSteps = TemperatureSliderConstants.TEMP_STEPS + 1
+
     Text(
-        text = "Position: ${sliderState.value.roundToInt() - TemperatureSliderConstants.MIN_TEMP.toInt() + 1}/${TemperatureSliderConstants.TEMP_STEPS + 1}",
+        text = "Position: $currentStep/$totalSteps",
         style = MaterialTheme.typography.labelSmall,
         modifier = Modifier.padding(top = 8.dp)
     )
@@ -141,7 +171,11 @@ private fun SliderPositionIndicator(sliderState: SliderState) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun TemperatureDisplay(sliderState: SliderState) {
-    Text("Temperature: ${sliderState.value.roundToInt()}°C (Range: ${TemperatureSliderConstants.MIN_TEMP.toInt()}-${TemperatureSliderConstants.MAX_TEMP.toInt()})")
+    val currentTemperature = sliderState.value.roundToInt()
+    val minTemperature = TemperatureSliderConstants.MIN_TEMP.toInt()
+    val maxTemperature = TemperatureSliderConstants.MAX_TEMP.toInt()
+
+    Text("Temperature: $currentTemperature°C (Range: $minTemperature-$maxTemperature°C)")
 }
 
 @Composable
@@ -151,7 +185,7 @@ private fun TemperatureSliderTrack() {
             brush = Brush.horizontalGradient(
                 colors = listOf(
                     Color.Blue,    // Cold (16°C)
-                    Color.Green,   // Moderate (23°C)
+                    Color.Yellow,   // Moderate (23°C)
                     Color.Red      // Hot (30°C)
                 )
             ), shape = RoundedCornerShape(4.dp)

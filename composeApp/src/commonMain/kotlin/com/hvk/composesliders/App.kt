@@ -17,16 +17,25 @@ import com.hvk.composesliders.examples.BasicSliderExample
 import com.hvk.composesliders.examples.TemperatureSliderExample
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
+/**
+ * The main Composable function for the application.
+ *
+ * This function sets up the overall layout and includes different slider examples.
+ * It uses MaterialTheme for styling and a Column for vertical arrangement of its children.
+ * The content is scrollable and has padding.
+ */
 @Composable
 @Preview
 fun App() {
     MaterialTheme {
+        val columnModifier = Modifier
+            .safeContentPadding()
+            .padding(8.dp)
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+
         Column(
-            modifier = Modifier
-                .safeContentPadding()
-                .padding(8.dp)
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState()),
+            modifier = columnModifier,
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(32.dp)
         ) {
