@@ -5,8 +5,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
+import androidx.compose.material3.SliderState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -23,17 +25,23 @@ import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import kotlin.math.roundToInt
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BasicSliderExample() {
-    var volume by remember { mutableFloatStateOf(50f) }
     var isEnabled by remember { mutableStateOf(true) }
-
+    val sliderState = remember {
+        SliderState(
+            value = 50f,
+            valueRange = 0f..100f,
+            steps = 19 // Number of discrete steps between valueRange.start and valueRange.end
+        )
+    }
     Column(
         verticalArrangement = Arrangement.spacedBy(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.fillMaxWidth()
     ) {
-        Text("Volume: ${volume.roundToInt()}% (Range: 0-100)")
+        Text("Volume: ${sliderState.value.roundToInt()}% (Range: 0-100)")
         Row(
             modifier = Modifier.padding(8.dp),
             horizontalArrangement = Arrangement.spacedBy(16.dp),
@@ -46,22 +54,16 @@ fun BasicSliderExample() {
             )
 
             Slider(
-                value = volume,
-                onValueChange = { volume = it },
-                valueRange = 0f..100f,
+                state = sliderState,
                 colors = SliderDefaults.colors(
-                    thumbColor = Color.Red.copy(alpha = volume ),
+                    thumbColor = Color.Red.copy(alpha = sliderState.value),
                     activeTrackColor = Color.Red.copy(alpha = .5f),
                     inactiveTrackColor = Color.Gray.copy(alpha = 0.3f),
                     activeTickColor = Color.Blue,
                     inactiveTickColor = Color.Gray
                 ),
                 enabled = isEnabled,
-                modifier = Modifier.fillMaxWidth(),
-                steps = 19, // 20 positions (0, 5, 10, 15...100),
-                onValueChangeFinished = {
-                    println("Volume changed to: ${volume.roundToInt()}%")
-                },
+                modifier = Modifier.fillMaxWidth()
             )
         }
     }

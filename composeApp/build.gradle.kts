@@ -37,6 +37,8 @@ kotlin {
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
+            implementation(libs.junit)
+            implementation(libs.kotlin.testJunit)
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
@@ -73,6 +75,7 @@ android {
 }
 
 dependencies {
+    testImplementation(libs.junit.jupiter)
     debugImplementation(compose.uiTooling)
 }
 
