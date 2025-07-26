@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
@@ -14,13 +15,14 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.PointerIcon
+import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import kotlin.math.roundToInt
@@ -41,7 +43,9 @@ fun BasicSliderExample() {
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.fillMaxWidth()
     ) {
-        Text("Volume: ${sliderState.value.roundToInt()}% (Range: 0-100)")
+        SelectionContainer {
+            Text("Volume: ${sliderState.value.roundToInt()}% (Range: 0-100)")
+        }
         Row(
             modifier = Modifier.padding(8.dp),
             horizontalArrangement = Arrangement.spacedBy(16.dp),
@@ -51,6 +55,7 @@ fun BasicSliderExample() {
                 checked = isEnabled,
                 onCheckedChange = { isEnabled = it },
                 Modifier.padding(8.dp)
+                    .pointerHoverIcon(PointerIcon.Hand)
             )
 
             Slider(
@@ -64,6 +69,7 @@ fun BasicSliderExample() {
                 ),
                 enabled = isEnabled,
                 modifier = Modifier.fillMaxWidth()
+                    .pointerHoverIcon(PointerIcon.Hand)
             )
         }
     }
