@@ -54,7 +54,8 @@ fun BasicSliderExample() {
             Switch(
                 checked = isEnabled,
                 onCheckedChange = { isEnabled = it },
-                Modifier.padding(8.dp)
+                modifier = Modifier
+                    .padding(8.dp)
                     .pointerHoverIcon(PointerIcon.Hand)
             )
 

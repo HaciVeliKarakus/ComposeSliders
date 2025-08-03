@@ -42,6 +42,7 @@ fun App() {
             BasicSliderExample()
             HorizontalDivider()
             TemperatureSliderExample()
+            HorizontalDivider()
         }
     }
 }
